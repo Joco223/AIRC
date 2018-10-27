@@ -29,9 +29,11 @@ int main(int argc, char* argv[]) {
     ctx.loadFont("Font.bmp", 5, 7);
 
     MessageList messageList(0, 0, 507, 341, scale);
+    MessageList userList(511, 0, 130, 360, scale);
 
     std::string input;
     std::string user = "Joco223";
+    userList.addMessage("", "", user);
 
     SDL_StartTextInput();
         
@@ -70,8 +72,9 @@ int main(int argc, char* argv[]) {
 
             ctx.drawRect(UserDivider, nullptr, 0);
             ctx.drawRect(InputDivider, nullptr, 0);
-            messageList.drawMessages(ctx, windowColour);
-            std::string inputText = input;
+            messageList.drawMessages(ctx, windowColour, true);
+            userList.drawMessages(ctx, windowColour, false);
+            std::string inputText = input + "_";
             int maxXSize = 507 / ((ctx.getFontX()+1) * 2);
             if(inputText.length() > maxXSize) {
                 int difference = inputText.length() - maxXSize;

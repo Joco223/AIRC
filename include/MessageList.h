@@ -18,5 +18,5 @@ private:
 public:
 	MessageList(int, int, int, int, int);
 	void addMessage(std::string, std::string, std::string);
-	void drawMessages(SDL2_2D_Context, Colour);
+	void drawMessages(SDL2_2D_Context, Colour, bool);
 };
