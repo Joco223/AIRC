@@ -1,7 +1,7 @@
+#pragma once
 #include <SDL.h>
 #include <string>
 #include <iostream>
-#include <unordered_map>
 
 class Rect;
 class Line;
@@ -31,6 +31,7 @@ public:
     Text(std::string, int, int, int, int, int, Colour, Colour, SDL2_2D_Context);
     std::string getText();
     void setText(std::string, SDL2_2D_Context);
+    void setTextPos(int, int, SDL2_2D_Context);
     void setTextSize(int, int, SDL2_2D_Context);
     void setScale(int, SDL2_2D_Context);
     void setForeground(Colour, SDL2_2D_Context);

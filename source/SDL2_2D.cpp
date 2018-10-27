@@ -191,12 +191,12 @@ void Text::updateTexture(SDL2_2D_Context ctx) {
     int xOffset = 0;
     int yOffset = 0;
     for(int i = 0; i < text.length(); i++) {
-        if((yOffset+1)*(ctx.getFontY()+1)*scale <= posY + endY*(ctx.getFontY()+1)*scale) {
+        if((yOffset+1)*(ctx.getFontY()+1)*scale <= 0 + endY*(ctx.getFontY()+1)*scale) {
             int texPosX = ((unsigned int)text[i] - 32) * ctx.getFontX();
             SDL_Rect src = {texPosX, 0, ctx.getFontX(), ctx.getFontY()};
             SDL_Rect bck = {0, 0, ctx.getFontX(), ctx.getFontY()};
-            SDL_Rect dst = {posX, posY, ctx.getFontX()*scale, ctx.getFontY()*scale};
-            SDL_Rect ds2 = {posX, posY, (ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale};
+            SDL_Rect dst = {0, 0, ctx.getFontX()*scale, ctx.getFontY()*scale};
+            SDL_Rect ds2 = {0, 0, (ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale};
 
             dst.y += yOffset*(ctx.getFontY()+1)*scale;
             ds2.y += yOffset*(ctx.getFontY()+1)*scale;
@@ -204,7 +204,7 @@ void Text::updateTexture(SDL2_2D_Context ctx) {
             dst.x += xOffset*(ctx.getFontX()+1)*scale;
             ds2.x += xOffset*(ctx.getFontX()+1)*scale;
 
-            if(posX + (xOffset + 2)*(ctx.getFontX()+1)*scale > posX + (endX*(ctx.getFontX()+1)*scale)) {
+            if(0 + (xOffset + 2)*(ctx.getFontX()+1)*scale > 0 + (endX*(ctx.getFontX()+1)*scale)) {
                 yOffset++;
                 xOffset = 0;
             }else{        
@@ -227,6 +227,12 @@ void Text::updateTexture(SDL2_2D_Context ctx) {
 
 void Text::setText(std::string text_, SDL2_2D_Context ctx) {
     text = text_;
+    updateTexture(ctx);
+}
+
+void Text::setTextPos(int posX_, int posY_, SDL2_2D_Context ctx) {
+    posX = posX_;
+    posY = posY_;
     updateTexture(ctx);
 }
 
