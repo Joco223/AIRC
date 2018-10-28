@@ -3,6 +3,8 @@
 #include <SDL_net.h>
 #include <string>
 
+#include "MessageList.h"
+
 class ServerSocket {
 private:
 	unsigned int port;
@@ -24,9 +26,9 @@ public:
 	std::string dotQuadString;
 	ServerSocket(unsigned int, unsigned int, unsigned int);
 
-	void checkForConnections();
-	void sendMessages(std::string);
-	int checkForActivity();
-	void dealWithActivity(unsigned int, std::string&);
+	void checkForConnections(std::string, MessageList&);
+	void sendMessages(std::string, std::string);
+	int checkForActivity(std::string&);
+	void dealWithActivity(unsigned int, std::string&, std::string&);
 
 };

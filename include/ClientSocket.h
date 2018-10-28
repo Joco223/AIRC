@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 
+#include "MessageList.h"
+
 class ClientSocket {
 private:
 	int serverPort;
@@ -20,7 +22,7 @@ public:
 
 	ClientSocket(std::string, int, int);
 
-	void connectToServer(std::string);
+	void connectToServer(std::string, MessageList&);
 	void sendMessage(std::string);
-	std::string checkForIncomingMessages();
+	std::string checkForIncomingMessages(std::string&, std::string&);
 };

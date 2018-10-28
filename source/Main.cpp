@@ -69,11 +69,11 @@ int main(int argc, char* argv[]) {
     ClientSocket* cs;
 
     if(hostMode == "host") {
-        ss = new ServerSocket(52239, 512, 50);
+        ss = new ServerSocket(12000, 512, 50);
         ctx.setWindowTitle("AIRC " + ss->dotQuadString);
     }else{
-        cs = new ClientSocket(ipAddress, 52239, 512);
-        cs->connectToServer(user);
+        cs = new ClientSocket(ipAddress, 12000, 512);
+        cs->connectToServer(user, userList);
         ctx.setWindowTitle("AIRC " + ipAddress);
     }
     std::string recievedMessage;
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
                         if(input.length() > 0) {
 
                             if(hostMode == "host") {
-                                ss->sendMessages(input);
+                                ss->sendMessages(user, input);
                             }else{
                                 cs->sendMessage(input);
                             }
@@ -124,23 +124,33 @@ int main(int argc, char* argv[]) {
             ctx.clear();
 
             if(hostMode == "host") {
-                ss->checkForConnections();
-                activeClient = ss->checkForActivity();
-                //std::cout << activeClient << '\n';
+                ss->checkForConnections(user, userList);
+                std::string userName;
+                std::string messageContnet;
+
+                activeClient = ss->checkForActivity(messageContnet);
+
                 while(activeClient != -1) {
                     if(activeClient != -1) {
-                        std::string tmp;
-                        ss->dealWithActivity(activeClient, tmp);
-                        std::cout << tmp << '\n';
+                        ss->dealWithActivity(activeClient, userName, messageContnet);
+                        if(messageContnet != "") {
+                            std::time_t t = std::time(0);
+                            std::tm* now = std::localtime(&t);
+                            std::string hours = std::to_string(now->tm_hour);
+                            if(now->tm_hour < 10) { hours = "0" + hours; }
+                            std::string minutes = std::to_string(now->tm_min);
+                            if(now->tm_min < 10) { minutes = "0" + minutes; }
+                            std::string time = hours + ":" + minutes;
+                            messageList.addMessage(time, userName, messageContnet);
+                        }
                     }
-                    activeClient = ss->checkForActivity();
+                    activeClient = ss->checkForActivity(messageContnet);
                 }
             }else{
-                recievedMessage = cs->checkForIncomingMessages();
-                recievedMessage == "";
-                /*if(recievedMessage != "" && first == false) {
-                    std::string sender = recievedMessage.substr(0, 16);
-                    std::string conent = recievedMessage.substr(16);
+                std::string userName;
+                std::string messageContnet;
+                cs->checkForIncomingMessages(userName, messageContnet);
+                if(messageContnet != "") {
                     std::time_t t = std::time(0);
                     std::tm* now = std::localtime(&t);
                     std::string hours = std::to_string(now->tm_hour);
@@ -148,8 +158,10 @@ int main(int argc, char* argv[]) {
                     std::string minutes = std::to_string(now->tm_min);
                     if(now->tm_min < 10) { minutes = "0" + minutes; }
                     std::string time = hours + ":" + minutes;
-                    messageList.addMessage(time, sender, conent);
-                } */
+                    messageList.addMessage(time, userName, messageContnet);
+                }else{
+                    userList.addMessage("", "", userName);
+                }
             }
 
             ctx.drawRect(UserDivider, nullptr, 0);
