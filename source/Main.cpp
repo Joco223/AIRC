@@ -5,9 +5,12 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <fstream>
 
 #include "SDL2_2D.h"
 #include "MessageList.h"
+#include "ServerSocket.h"
+#include "ClientSocket.h"
 
 constexpr int w = 640, h = 360;
 constexpr int scale = 2;
@@ -18,6 +21,8 @@ int main(int argc, char* argv[]) {
 	Colour windowColour = {50, 50, 50};
 
     SDL2_2D_Context ctx;
+
+    SDLNet_Init();
 
     ctx.Init("AIRC", w, h, windowColour);
 
@@ -32,8 +37,47 @@ int main(int argc, char* argv[]) {
     MessageList userList(511, 0, 130, 360, scale);
 
     std::string input;
-    std::string user = "Joco223";
+
+    std::ifstream inputF("config.cfg");
+
+    int index = 0;
+    std::string user;
+    std::string hostMode;
+    std::string ipAddress;
+    for(std::string line; std::getline(inputF, line);) {
+        bool host = false;
+        switch(index) {
+            case 0:
+                user = line;
+                break;
+            case 1:
+                hostMode = line;
+                if(line == "host") { host = true; }
+                break;
+            case 2:
+                ipAddress = line;
+                break;
+        }
+        if(host) {break;}
+        index++;
+    }
+
     userList.addMessage("", "", user);
+
+    int activeClient = -1;
+    ServerSocket* ss;
+    ClientSocket* cs;
+
+    if(hostMode == "host") {
+        ss = new ServerSocket(52239, 512, 50);
+        ctx.setWindowTitle("AIRC " + ss->dotQuadString);
+    }else{
+        cs = new ClientSocket(ipAddress, 52239, 512);
+        cs->connectToServer(user);
+        ctx.setWindowTitle("AIRC " + ipAddress);
+    }
+    std::string recievedMessage;
+    bool first = true;
 
     SDL_StartTextInput();
         
@@ -51,24 +95,62 @@ int main(int argc, char* argv[]) {
                     }else if(e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL) {
                         input += SDL_GetClipboardText();
                     }else if(e.key.keysym.sym == SDLK_KP_ENTER || e.key.keysym.sym == SDLK_RETURN) {
-                        std::time_t t = std::time(0);
-                        std::tm* now = std::localtime(&t);
-                        std::string hours = std::to_string(now->tm_hour);
-                        if(now->tm_hour < 10) { hours = "0" + hours; }
-                         std::string minutes = std::to_string(now->tm_min);
-                        if(now->tm_min < 10) { minutes = "0" + minutes; }
-                        std::string time = hours + ":" + minutes;
-                        messageList.addMessage(time, user, input);
-                        input = "";
+                        if(input.length() > 0) {
+
+                            if(hostMode == "host") {
+                                ss->sendMessages(input);
+                            }else{
+                                cs->sendMessage(input);
+                            }
+                            
+                            std::time_t t = std::time(0);
+                            std::tm* now = std::localtime(&t);
+                            std::string hours = std::to_string(now->tm_hour);
+                            if(now->tm_hour < 10) { hours = "0" + hours; }
+                             std::string minutes = std::to_string(now->tm_min);
+                            if(now->tm_min < 10) { minutes = "0" + minutes; }
+                            std::string time = hours + ":" + minutes;
+                            messageList.addMessage(time, user, input);
+                            input = "";
+                        }   
                     }
                     break;
                 case SDL_TEXTINPUT:
-                    if(!(( e.text.text[ 0 ] == 'c' || e.text.text[ 0 ] == 'C' ) && ( e.text.text[ 0 ] == 'v' || e.text.text[ 0 ] == 'V' ) && SDL_GetModState() & KMOD_CTRL)) {
+                    if(!((e.text.text[0] == 'c' || e.text.text[0] == 'C' ) && ( e.text.text[0] == 'v' || e.text.text[0] == 'V' ) && SDL_GetModState() & KMOD_CTRL)) {
                         input += e.text.text;
                     }
                     break;
             }
             ctx.clear();
+
+            if(hostMode == "host") {
+                ss->checkForConnections();
+                activeClient = ss->checkForActivity();
+                //std::cout << activeClient << '\n';
+                while(activeClient != -1) {
+                    if(activeClient != -1) {
+                        std::string tmp;
+                        ss->dealWithActivity(activeClient, tmp);
+                        std::cout << tmp << '\n';
+                    }
+                    activeClient = ss->checkForActivity();
+                }
+            }else{
+                recievedMessage = cs->checkForIncomingMessages();
+                recievedMessage == "";
+                /*if(recievedMessage != "" && first == false) {
+                    std::string sender = recievedMessage.substr(0, 16);
+                    std::string conent = recievedMessage.substr(16);
+                    std::time_t t = std::time(0);
+                    std::tm* now = std::localtime(&t);
+                    std::string hours = std::to_string(now->tm_hour);
+                    if(now->tm_hour < 10) { hours = "0" + hours; }
+                    std::string minutes = std::to_string(now->tm_min);
+                    if(now->tm_min < 10) { minutes = "0" + minutes; }
+                    std::string time = hours + ":" + minutes;
+                    messageList.addMessage(time, sender, conent);
+                } */
+            }
 
             ctx.drawRect(UserDivider, nullptr, 0);
             ctx.drawRect(InputDivider, nullptr, 0);

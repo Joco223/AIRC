@@ -142,6 +142,10 @@ void SDL2_2D_Context::drawLine(int x1, int y1, int x2, int y2, Colour colour){
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 };
 
+void SDL2_2D_Context::setWindowTitle(std::string newTitle) {
+    SDL_SetWindowTitle(window, newTitle.c_str());
+}
+
 SDL_Texture* SDL2_2D_Context::getFont() { return font; }
 int SDL2_2D_Context::getWidth() { return width; }
 int SDL2_2D_Context::getHeight() { return height; }

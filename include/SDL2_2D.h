@@ -103,6 +103,7 @@ public:
     void Init(const char*, int, int, Colour);
     void deInit();
     void clear();
+    void setWindowTitle(std::string);
     void loadFont(const char*, int, int);
     void draw();
     void drawText(Text);
