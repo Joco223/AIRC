@@ -69,12 +69,12 @@ int main(int argc, char* argv[]) {
     ClientSocket* cs;
 
     if(hostMode == "host") {
-        ss = new ServerSocket(12000, 512, 50);
-        ctx.setWindowTitle("AIRC " + ss->dotQuadString);
+        ss = new ServerSocket(7777, 512, 50);
+        ctx.setWindowTitle("AIRC - " + ss->dotQuadString);
     }else{
-        cs = new ClientSocket(ipAddress, 12000, 512);
+        cs = new ClientSocket(ipAddress, 7777, 512);
         cs->connectToServer(user, userList);
-        ctx.setWindowTitle("AIRC " + ipAddress);
+        ctx.setWindowTitle("AIRC - " + ipAddress);
     }
     std::string recievedMessage;
     bool first = true;
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
                     if(e.key.keysym.sym == SDLK_BACKSPACE && input.length() > 0) {
                         input.pop_back();
                     }else if(e.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL) {
-                        SDL_SetClipboardText( input.c_str() );
+                        SDL_SetClipboardText(input.c_str());
                     }else if(e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL) {
                         input += SDL_GetClipboardText();
                     }else if(e.key.keysym.sym == SDLK_KP_ENTER || e.key.keysym.sym == SDLK_RETURN) {
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
                     }
                     break;
                 case SDL_TEXTINPUT:
-                    if(!((e.text.text[0] == 'c' || e.text.text[0] == 'C' ) && ( e.text.text[0] == 'v' || e.text.text[0] == 'V' ) && SDL_GetModState() & KMOD_CTRL)) {
+                    if(!((e.text.text[0] == 'c' || e.text.text[0] == 'C' ) && ( e.text.text[0] == 'v' || e.text.text[0] == 'V') && SDL_GetModState() & KMOD_CTRL)) {
                         input += e.text.text;
                     }
                     break;

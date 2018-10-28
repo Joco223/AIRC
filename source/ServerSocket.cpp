@@ -17,8 +17,6 @@ ServerSocket::ServerSocket(unsigned int port_, unsigned int bufferSize_, unsigne
 				for(int i = 0; i < maxClients; i++) {pClientSocket[i] = nullptr; pSocketIsFree[i] = true;}
 				SDLNet_ResolveHost(&serverIP, nullptr, port_);
 
-				std::cout << SDLNet_ResolveIP(&serverIP) << '\n';
-
 				unsigned char* dotQuad = (unsigned char*)&serverIP.host;
 
 				dotQuadString  = std::to_string((unsigned char)dotQuad[0]);
