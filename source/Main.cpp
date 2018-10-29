@@ -12,7 +12,7 @@
 #include "ServerSocket.h"
 #include "ClientSocket.h"
 
-constexpr int w = 640, h = 360;
+constexpr int w = 960, h = 540;
 constexpr int scale = 2;
 bool quit = false;
 
@@ -28,13 +28,13 @@ int main(int argc, char* argv[]) {
 
     SDL_Event e;
 
-    Rect UserDivider(507, 0, 3, h, {255, 255, 255});
-    Rect InputDivider(0, 341, 507, 3, {255, 255, 255});
+    Rect UserDivider(785, 0, 3, h, {255, 255, 255});
+    Rect InputDivider(0, 521, 785, 2, {255, 255, 255});
 
     ctx.loadFont("Font.bmp", 5, 7);
 
-    MessageList messageList(0, 0, 507, 341, scale);
-    MessageList userList(511, 0, 130, 360, scale);
+    MessageList messageList(0, 0, 785, 521, scale, 3);
+    MessageList userList(790, 0, 130, 540, scale, 2);
 
     std::string input;
 
@@ -47,14 +47,14 @@ int main(int argc, char* argv[]) {
     for(std::string line; std::getline(inputF, line);) {
         bool host = false;
         switch(index) {
-            case 0:
+            case 1:
                 user = line;
                 break;
-            case 1:
+            case 3:
                 hostMode = line;
                 if(line == "host") { host = true; }
                 break;
-            case 2:
+            case 5:
                 ipAddress = line;
                 break;
         }
@@ -69,10 +69,10 @@ int main(int argc, char* argv[]) {
     ClientSocket* cs;
 
     if(hostMode == "host") {
-        ss = new ServerSocket(7777, 512, 50);
+        ss = new ServerSocket(12000, 512, 50);
         ctx.setWindowTitle("AIRC - " + ss->dotQuadString);
     }else{
-        cs = new ClientSocket(ipAddress, 7777, 512);
+        cs = new ClientSocket(ipAddress, 12000, 512);
         cs->connectToServer(user, userList);
         ctx.setWindowTitle("AIRC - " + ipAddress);
     }
@@ -169,13 +169,13 @@ int main(int argc, char* argv[]) {
             messageList.drawMessages(ctx, windowColour, true);
             userList.drawMessages(ctx, windowColour, false);
             std::string inputText = input + "_";
-            int maxXSize = 507 / ((ctx.getFontX()+1) * 2);
+            int maxXSize = 785 / ((ctx.getFontX()+1) * 2);
             if(inputText.length() > maxXSize) {
                 int difference = inputText.length() - maxXSize;
                 inputText.erase(0, difference);
-                ctx.drawText(inputText, 0, 345, maxXSize, 1, 2, {255, 255, 255}, windowColour);
+                ctx.drawText(inputText, 0, 524, maxXSize, 1, 2, {255, 255, 255}, windowColour);
             }else{
-                ctx.drawText(inputText, 0, 345, maxXSize, 1, 2, {255, 255, 255}, windowColour);
+                ctx.drawText(inputText, 0, 524, maxXSize, 1, 2, {255, 255, 255}, windowColour);
             }
 
             ctx.draw();

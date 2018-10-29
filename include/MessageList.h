@@ -14,9 +14,9 @@ struct Message {
 class MessageList {
 private:
 	std::vector<Message> list;
-	int x, y, w, h, scale;
+	int x, y, w, h, scale, seperation;
 public:
-	MessageList(int, int, int, int, int);
+	MessageList(int, int, int, int, int, int);
 	void addMessage(std::string, std::string, std::string);
 	void drawMessages(SDL2_2D_Context, Colour, bool);
 };
