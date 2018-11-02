@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     ctx.loadFont("Font.bmp", 5, 7);
 
     MessageList messageList(0, 0, w-175, h-19, scale, 3);
-    MessageList userList(w-170, 0, 130, h, scale, 2);
+    MessageList userList(w-170, 0, 170, h, scale, 2);
 
     std::string input;
     std::string user;
@@ -43,11 +43,12 @@ int main(int argc, char* argv[]) {
     Networking::NetworkStruct NS = Networking::Init(ctx, userList, user);
 
     userList.addMessage("", "", user);
-
+    bool alreadyUpdated = true;
+    
     SDL_StartTextInput();
         
     while (!quit) {
-        while (SDL_WaitEventTimeout(&e, 20)) {
+        while (SDL_WaitEventTimeout(&e, 16)) {
             switch (e.type) {
                 case SDL_QUIT:
                     quit = true;
@@ -72,27 +73,40 @@ int main(int argc, char* argv[]) {
                     }
                     break;
             }
-            ctx.clear();
+        }
+        ctx.clear();
 
-            Networking::update(NS, messageList, userList, user);
-
-            ctx.drawRect(UserDivider, nullptr, 0);
-            ctx.drawRect(InputDivider, nullptr, 0);
-            messageList.drawMessages(ctx, windowColour, true);
-            userList.drawMessages(ctx, windowColour, false);
-            std::string inputText = input + "_";
-            int maxXSize = (w-175) / ((ctx.getFontX()+1) * 2);
-            if(inputText.length() > maxXSize) {
-                int difference = inputText.length() - maxXSize;
-                inputText.erase(0, difference);
-                ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, {255, 255, 255}, windowColour);
-            }else{
-                ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, {255, 255, 255}, windowColour);
-            }
-
-            ctx.draw();
+        if(input != "") {
+            if(alreadyUpdated) {
+                userList.startWriting(user);
+                Networking::updateStatus(NS, input, user);
+                alreadyUpdated = false; 
+            }    
+        }else{
+            if(!alreadyUpdated) {
+                userList.stopWriting(user);
+                Networking::updateStatus(NS, input, user);
+                alreadyUpdated = true;
+            }   
         }
 
+        Networking::update(NS, messageList, userList, user);
+
+        ctx.drawRect(UserDivider, nullptr, 0);
+        ctx.drawRect(InputDivider, nullptr, 0);
+        messageList.drawMessages(ctx, windowColour, true);
+        userList.drawMessages(ctx, windowColour, false);
+        std::string inputText = input + "_";
+        int maxXSize = (w-175) / ((ctx.getFontX()+1) * 2);
+        if(inputText.length() > maxXSize) {
+            int difference = inputText.length() - maxXSize;
+            inputText.erase(0, difference);
+            ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, {255, 255, 255}, windowColour);
+        }else{
+            ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, {255, 255, 255}, windowColour);
+        }
+
+        ctx.draw();
     }
 
     SDL_StopTextInput();

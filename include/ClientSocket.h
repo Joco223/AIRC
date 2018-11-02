@@ -24,5 +24,6 @@ public:
 
 	void connectToServer(std::string, MessageList&);
 	void sendMessage(std::string);
-	std::string checkForIncomingMessages(std::string&, std::string&);
+	void sendWritingStatus(std::string, std::string);
+	std::string checkForIncomingMessages(std::string&, std::string&, MessageList&, bool&);
 };

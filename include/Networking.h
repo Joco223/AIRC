@@ -21,5 +21,6 @@ namespace Networking {
 	NetworkStruct Init(SDL2_2D_Context&, MessageList&, std::string&);
 	void sendMessage(NetworkStruct&, std::string, std::string, MessageList&);
 	void update(NetworkStruct&, MessageList&, MessageList&, std::string);
+	void updateStatus(NetworkStruct&, std::string, std::string);
 }
 

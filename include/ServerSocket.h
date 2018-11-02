@@ -28,7 +28,7 @@ public:
 
 	void checkForConnections(std::string, MessageList&);
 	void sendMessages(std::string, std::string);
-	int checkForActivity(std::string&);
+	void sendWritingStatus(std::string, std::string);
+	int checkForActivity(std::string&, MessageList&);
 	void dealWithActivity(unsigned int, std::string&, std::string&);
-
 };

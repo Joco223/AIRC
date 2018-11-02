@@ -64,13 +64,21 @@ namespace Networking {
 		messageList.addMessage(getTime(), user, input);
 	}
 
+	void updateStatus(NetworkStruct& NS, std::string input, std::string user) {
+		if(NS.host) {
+			NS.ss->sendWritingStatus(input, user);
+		}else{
+			NS.cs->sendWritingStatus(input, user);
+		}
+	}
+
 	void update(NetworkStruct& NS, MessageList& messageList, MessageList& userList, std::string user) {
 		if(NS.host) {
 			NS.ss->checkForConnections(user, userList);
 			std::string userName;
 			std::string messageContnet;
 
-			int activeClient = NS.ss->checkForActivity(messageContnet);
+			int activeClient = NS.ss->checkForActivity(messageContnet, userList);
 
 			while(activeClient != -1) {
 				if(activeClient != -1) {
@@ -79,15 +87,16 @@ namespace Networking {
 						messageList.addMessage(getTime(), userName, messageContnet);
 					}
 				}
-				activeClient = NS.ss->checkForActivity(messageContnet);
+				activeClient = NS.ss->checkForActivity(messageContnet, userList);
 			}
 		}else{
 			std::string userName;
 			std::string messageContnet;
-			NS.cs->checkForIncomingMessages(userName, messageContnet);
+			bool received = false;
+			NS.cs->checkForIncomingMessages(userName, messageContnet, userList, received);
 			if(messageContnet != "") {
 				messageList.addMessage(getTime(), userName, messageContnet);
-			}else{
+			}else if(received){
 				userList.addMessage("", "", userName);
 			}
 		}

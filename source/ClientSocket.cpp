@@ -30,23 +30,58 @@ void ClientSocket::connectToServer(std::string name, MessageList& userList) {
 	}
 }
 
-void ClientSocket::sendMessage(std::string message) {
-	SDLNet_TCP_Send(clientSocket, (void *)(message.c_str()), 512);
+void ClientSocket::sendWritingStatus(std::string input, std::string user) {
+	std::string exec;
+	if(input != "") {
+		exec = "2";
+	}else{
+		exec = "3";
+	}
+	SDLNet_TCP_Send(clientSocket, (void*)(exec.c_str()), 1);
+	SDLNet_TCP_Send(clientSocket, (void*)(user.c_str()), 16);
 }
 
-std::string ClientSocket::checkForIncomingMessages(std::string& user, std::string& content) {
-	std::string recievedMessage = "";
+void ClientSocket::sendMessage(std::string message) {
+	std::string exec = "1";
+	SDLNet_TCP_Send(clientSocket, (void*)(exec.c_str()), 1);
+	std::string messageLength = std::to_string(message.length());
+	SDLNet_TCP_Send(clientSocket, (void*)(messageLength.c_str()), 4);
+	SDLNet_TCP_Send(clientSocket, (void*)(message.c_str()), message.length());
+}
+
+std::string ClientSocket::checkForIncomingMessages(std::string& user, std::string& content, MessageList& userList, bool& received) {
+	std::string receivedMessage = "";
 	int activeSockets = SDLNet_CheckSockets(socketSet, 10);
 
 	if(activeSockets != 0) {
 		int gotMessage = SDLNet_SocketReady(clientSocket);
 		if(gotMessage != 0) {
-			SDLNet_TCP_Recv(clientSocket, pBuffer, 16);
-			user = pBuffer;
-			SDLNet_TCP_Recv(clientSocket, pBuffer, 512);
-			content = pBuffer;
+			SDLNet_TCP_Recv(clientSocket, pBuffer, 1);
+			std::string exec = pBuffer;
+			if(exec[0] == '1') {
+				SDLNet_TCP_Recv(clientSocket, pBuffer, 16);
+				user = pBuffer;
+				SDLNet_TCP_Recv(clientSocket, pBuffer, 4);
+				std::string message = pBuffer;
+				int finalSize = std::stoi(message);
+				SDLNet_TCP_Recv(clientSocket, pBuffer, finalSize);
+				content.resize(finalSize);
+				for(int i = 0; i < finalSize; i++) {content[i] = pBuffer[i];}
+				received = true;
+			}else if(exec[0] == '2') {
+				SDLNet_TCP_Recv(clientSocket, pBuffer, 16);
+				user.resize(16);
+				for(int i = 0; i < 16; i++) {user[i] = pBuffer[i];}
+				userList.startWriting(user);
+				received = false;
+			}else{
+				SDLNet_TCP_Recv(clientSocket, pBuffer, 16);
+				user.resize(16);
+				for(int i = 0; i < 16; i++) {user[i] = pBuffer[i];}
+				userList.stopWriting(user);
+				received = false;
+			}	
 		}
 	}
-
-	return recievedMessage;
+	return receivedMessage;
 }
