@@ -22,8 +22,9 @@ public:
 
 	ClientSocket(std::string, int, int);
 
-	void connectToServer(std::string, MessageList&);
+	bool connectToServer(std::string, std::string, MessageList&);
 	void sendMessage(std::string);
 	void sendWritingStatus(std::string, std::string);
 	std::string checkForIncomingMessages(std::string&, std::string&, MessageList&, bool&);
+	void disconnectFromServer();
 };

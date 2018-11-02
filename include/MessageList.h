@@ -23,5 +23,6 @@ public:
 	void startWriting(std::string);
 	void stopWriting(std::string);
 	void addMessage(std::string, std::string, std::string);
+	void removeMessage(std::string);
 	void drawMessages(SDL2_2D_Context, Colour, bool);
 };

@@ -15,6 +15,12 @@ void MessageList::addMessage(std::string time, std::string sender, std::string c
 	list.insert(list.begin(), newMessage);
 }
 
+void MessageList::removeMessage(std::string targetContent) {
+	int id = -1;
+	for(int i = 0; i < list.size(); i++) {if(list[i].content == targetContent) {id = i; break;}}
+	if(id != -1) {list.erase(list.begin()+id);}
+}
+
 void MessageList::startWriting(std::string user) {
 	int id = -1;
 	for(int i = 0; i < list.size(); i++) {

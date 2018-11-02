@@ -40,7 +40,10 @@ int main(int argc, char* argv[]) {
     std::string input;
     std::string user;
 
-    Networking::NetworkStruct NS = Networking::Init(ctx, userList, user);
+    bool connected = false;
+    Networking::NetworkStruct NS = Networking::Init(ctx, userList, user, connected);
+
+    if(!connected) {return 0;}
 
     userList.addMessage("", "", user);
     bool alreadyUpdated = true;
@@ -60,6 +63,8 @@ int main(int argc, char* argv[]) {
                         SDL_SetClipboardText(input.c_str());
                     }else if(e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL) {
                         input += SDL_GetClipboardText();
+                    }else if(e.key.keysym.sym == SDLK_q && SDL_GetModState() & KMOD_CTRL) {
+                        if(!NS.host) {Networking::disconnectUser(NS); return 0;}
                     }else if(e.key.keysym.sym == SDLK_KP_ENTER || e.key.keysym.sym == SDLK_RETURN) {
                         if(input.length() > 0) {
                             Networking::sendMessage(NS, input, user, messageList);

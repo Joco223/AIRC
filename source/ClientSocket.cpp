@@ -9,7 +9,7 @@ ClientSocket::ClientSocket(std::string address, int port_, int bufferSize_) {
 	socketSet = SDLNet_AllocSocketSet(2);
 }
 
-void ClientSocket::connectToServer(std::string name, MessageList& userList) {
+bool ClientSocket::connectToServer(std::string pswd, std::string name, MessageList& userList) {
 	SDLNet_ResolveHost(&serverIP, serverHostName.c_str(), serverPort);
 
 	clientSocket = SDLNet_TCP_Open(&serverIP);
@@ -17,17 +17,39 @@ void ClientSocket::connectToServer(std::string name, MessageList& userList) {
 	int activeSockets = SDLNet_CheckSockets(socketSet, 5000);
 	int gotServerResponse = SDLNet_SocketReady(clientSocket);
 	int serverResponseByteCount = SDLNet_TCP_Recv(clientSocket, pBuffer, 3);
-	SDLNet_TCP_Send(clientSocket, (void *)(name.c_str()), 16);
+	bool accepted = false;
 
-	while(true) {
-		SDLNet_TCP_Recv(clientSocket, pBuffer, 16);
-		std::string message = pBuffer;
-		if(message != "END") {
-			userList.addMessage("", "", message);
+	if(serverResponseByteCount >= 0) {
+		if(pBuffer[2] == 'Y') {
+			SDLNet_TCP_Send(clientSocket, (void *)(pswd.c_str()), 6);
+			SDLNet_TCP_Recv(clientSocket, pBuffer, 1);
+			if(pBuffer[0] == '2') {
+				accepted = true;
+			}
 		}else{
-			break;
+			accepted = true;
 		}
 	}
+
+	if(accepted) {
+		SDLNet_TCP_Send(clientSocket, (void *)(name.c_str()), 16);
+
+		while(true) {
+			SDLNet_TCP_Recv(clientSocket, pBuffer, 16);
+			std::string message = pBuffer;
+			if(message != "END") {
+				userList.addMessage("", "", message);
+			}else{
+				break;
+			}
+		}
+	}
+	return accepted;
+}
+
+void ClientSocket::disconnectFromServer() {
+	SDLNet_TCP_DelSocket(socketSet, clientSocket);
+	SDLNet_TCP_Close(clientSocket);
 }
 
 void ClientSocket::sendWritingStatus(std::string input, std::string user) {

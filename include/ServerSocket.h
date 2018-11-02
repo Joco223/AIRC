@@ -26,7 +26,7 @@ public:
 	std::string dotQuadString;
 	ServerSocket(unsigned int, unsigned int, unsigned int);
 
-	void checkForConnections(std::string, MessageList&);
+	void checkForConnections(std::string, std::string, MessageList&);
 	void sendMessages(std::string, std::string);
 	void sendWritingStatus(std::string, std::string);
 	int checkForActivity(std::string&, MessageList&);

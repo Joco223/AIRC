@@ -13,12 +13,17 @@ namespace Networking {
 		return time;
 	}
 
-	NetworkStruct Init(SDL2_2D_Context& ctx, MessageList& userList, std::string& user) {
+	void disconnectUser(NetworkStruct& NS) {
+		NS.cs->disconnectFromServer();
+	}
+
+	NetworkStruct Init(SDL2_2D_Context& ctx, MessageList& userList, std::string& user, bool& connected) {
 		std::ifstream inputF("config.cfg");
 
 		int index = 0;
 		std::string hostMode;
 		std::string ipAddress;
+		std::string password = "";
 		bool host = false;
 		for(std::string line; std::getline(inputF, line);) {
 			switch(index) {
@@ -32,22 +37,25 @@ namespace Networking {
 	            case 5:
 					ipAddress = line;
 					break;
+				case 7:
+					password = line;
+					break;
 			}
-			if(host) {break;}
 			index++;
 		}
 
 		ServerSocket* ss;
 		ClientSocket* cs;
 
-		NetworkStruct NS = {host, ss, cs};
+		NetworkStruct NS = {host, password, ss, cs};
 		
 		if(hostMode == "host") {
 			NS.ss = new ServerSocket(12000, 512, 50);
 			ctx.setWindowTitle("AIRC - " + NS.ss->dotQuadString);
+			connected = true;
 		}else{
 			NS.cs = new ClientSocket(ipAddress, 12000, 512);
-			NS.cs->connectToServer(user, userList);
+			connected = NS.cs->connectToServer(password, user, userList);
 			ctx.setWindowTitle("AIRC - " + ipAddress);
 		}
 
@@ -74,7 +82,7 @@ namespace Networking {
 
 	void update(NetworkStruct& NS, MessageList& messageList, MessageList& userList, std::string user) {
 		if(NS.host) {
-			NS.ss->checkForConnections(user, userList);
+			NS.ss->checkForConnections(NS.pswd, user, userList);
 			std::string userName;
 			std::string messageContnet;
 

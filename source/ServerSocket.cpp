@@ -31,7 +31,7 @@ ServerSocket::ServerSocket(unsigned int port_, unsigned int bufferSize_, unsigne
 				SDLNet_TCP_AddSocket(socketSet, serverSocket);
 			};
 
-void ServerSocket::checkForConnections(std::string userName, MessageList& userList) {
+void ServerSocket::checkForConnections(std::string pswd, std::string userName, MessageList& userList) {
 	int numActiveSockets = SDLNet_CheckSockets(socketSet, 10);
 	int serverSocketActivity = SDLNet_SocketReady(serverSocket);
 	if(serverSocketActivity != 0) {
@@ -47,30 +47,60 @@ void ServerSocket::checkForConnections(std::string userName, MessageList& userLi
 			pClientSocket[freeSpot] = SDLNet_TCP_Accept(serverSocket);
 			SDLNet_TCP_AddSocket(socketSet, pClientSocket[freeSpot]);
 			clientCount++;
-			strcpy(pBuffer, "OK");
-			int msgLength = 3;
-			SDLNet_TCP_Send(pClientSocket[freeSpot], (void*)pBuffer, msgLength);
-			int receivedByteCount = SDLNet_TCP_Recv(pClientSocket[freeSpot], pBuffer, 16);
-			clientNames[freeSpot] = pBuffer;
-			userList.addMessage("", "", clientNames[freeSpot]);
-			std::string empty = "";
+			std::string connected = "OK";
+			if(pswd != "") {connected.append("Y");}
+			SDLNet_TCP_Send(pClientSocket[freeSpot], (void*)connected.c_str(), 3);
 
-			for(int i = 0; i < maxClients; i++) {
-				if((i != freeSpot) && (pSocketIsFree[i] == false)) {
-					SDLNet_TCP_Send(pClientSocket[i], (void*)(clientNames[freeSpot].c_str()), 16);
+			bool accepted = true;
+
+			if(pswd != "") {
+				SDLNet_TCP_Recv(pClientSocket[freeSpot], pBuffer, 6);
+
+				std::string userPswd = pBuffer;
+				userPswd = userPswd.substr(0, 6);
+
+				std::string correct = "2";
+				std::string incorrect = "1";
+				
+
+				if(userPswd == pswd) {
+					SDLNet_TCP_Send(pClientSocket[freeSpot], correct.c_str(), 1);		
+				}else{
+					SDLNet_TCP_Send(pClientSocket[freeSpot], incorrect.c_str(), 1);
+					accepted = false;
 				}
 			}
 
-			for(int i = 0; i < maxClients; i++) {
-				if((i != freeSpot) && (pSocketIsFree[i] == false)) {
-					SDLNet_TCP_Send(pClientSocket[freeSpot], (void*)(clientNames[i].c_str()), 16);
+			if(accepted) {
+				SDLNet_TCP_Recv(pClientSocket[freeSpot], pBuffer, 16);
+				clientNames[freeSpot] = pBuffer;
+				userList.addMessage("", "", clientNames[freeSpot]);
+				std::string empty = "";
+
+				for(int i = 0; i < maxClients; i++) {
+					if((i != freeSpot) && (pSocketIsFree[i] == false)) {
+						SDLNet_TCP_Send(pClientSocket[i], (void*)(clientNames[freeSpot].c_str()), 16);
+					}
 				}
-			}
 
-			std::string end = "END";
+				for(int i = 0; i < maxClients; i++) {
+					if((i != freeSpot) && (pSocketIsFree[i] == false)) {
+						SDLNet_TCP_Send(pClientSocket[freeSpot], (void*)(clientNames[i].c_str()), 16);
+					}
+				}
 
-			SDLNet_TCP_Send(pClientSocket[freeSpot], (void*)(userName.c_str()), 16);
-			SDLNet_TCP_Send(pClientSocket[freeSpot], (void*)(end.c_str()), 16);
+				std::string end = "END";
+
+				SDLNet_TCP_Send(pClientSocket[freeSpot], (void*)(userName.c_str()), 16);
+				SDLNet_TCP_Send(pClientSocket[freeSpot], (void*)(end.c_str()), 16);
+			}else{
+				SDLNet_TCP_DelSocket(socketSet, pClientSocket[freeSpot]);
+				SDLNet_TCP_Close(pClientSocket[freeSpot]);
+				pClientSocket[freeSpot] = nullptr;
+				clientNames[freeSpot] = "";
+				pSocketIsFree[freeSpot] = true;
+				clientCount--;
+			}	
 		}else{
 			TCPsocket tempSock = SDLNet_TCP_Accept(serverSocket);
 			strcpy(pBuffer, "FULL");
@@ -136,6 +166,7 @@ int ServerSocket::checkForActivity(std::string& content, MessageList& userList) 
 					SDLNet_TCP_DelSocket(socketSet, pClientSocket[clientNumber]);
 					SDLNet_TCP_Close(pClientSocket[clientNumber]);
 					pClientSocket[clientNumber] = nullptr;
+					userList.removeMessage(clientNames[clientNumber]);
 					clientNames[clientNumber] = "";
 					pSocketIsFree[clientNumber] = true;
 					clientCount--;
