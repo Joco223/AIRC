@@ -7,11 +7,25 @@ MessageList::MessageList(int x_, int y_, int w_, int h_, int scale_, int seperat
 			y(y_),
 			w(w_),
 			h(h_),
+			scroll(0),
+			totYSize(0),
 			seperation(seperation_)
 			{};
 
-void MessageList::addMessage(std::string time, std::string sender, std::string content) {
-	Message newMessage = {time, sender, content, 0, false};
+void MessageList::addMessage(SDL2_2D_Context& ctx, Colour background, std::string time, std::string sender, std::string content) {
+	/*int maxXSize = floor(w / ((ctx.getFontX()+1) * scale));
+	std::string message = content;
+	if(sender != "") {message = time + "|" + sender + ": " + message;}
+	int charsY = message.length() / maxXSize;
+	if(message.length() % maxXSize != 0) {charsY++;}
+	Text temp(message, 0, 0, maxXSize, charsY, scale, {255, 255, 255}, background, ctx);*/
+
+	int maxXSize = floor(w / ((ctx.getFontX()+1) * scale));
+	std::string message = content;
+	if(sender != "") {message = time + "|" + sender + ": " + message;}
+	int charsY = message.length() / maxXSize + 1;
+	totYSize += charsY*(ctx.getFontY()+1)*scale;
+	Message newMessage = {time, sender, message, 0, false, message};
 	list.insert(list.begin(), newMessage);
 }
 
@@ -38,7 +52,9 @@ void MessageList::startWriting(std::string user) {
 			break;
 		}
 	}
-	if(id != -1) {list[id].writing = true;}
+	if(id != -1) {list[id].writing = true; 
+		list[id].oldContent = list[id].content;
+	}
 }
 
 void MessageList::stopWriting(std::string user) {
@@ -61,23 +77,36 @@ void MessageList::stopWriting(std::string user) {
 	if(id != -1) {list[id].writing = false; list[id].step = 0;}
 }
 
-void MessageList::drawMessages(SDL2_2D_Context ctx, Colour windowColour, bool mode) {
-	int yOffset = 0;
+void MessageList::scrollMessages(int mouseX, int mouseY, int scrollAmount) {
+	if(mouseX > x && mouseX < x + w) {
+		if(mouseY > y && mouseY < y + h) {
+			scroll += scrollAmount*20;
+			if(scroll < 0) {scroll = 0;}
+			if(scroll > (y+h - totYSize) * -1) {
+				if((y+h - totYSize) * -1 > 0) {
+					scroll = (y+h - totYSize) * -1;
+				}else{
+					scroll = 0;
+				}
+			}
+		}
+	}
+}
+
+void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode) {
 	int maxXSize = floor(w / ((ctx.getFontX()+1) * scale));
+	int yOffset = 0;
 	for(int i = 0; i < list.size(); i++) {
+		int startY = 0;
 		std::string message = list[i].content;
 		if(list[i].sender != "") {message = list[i].time + "|" + list[i].sender + ": " + message;}
 		int charsY = message.length() / maxXSize;
 		if(message.length() % maxXSize != 0) {charsY++;}
-		int sizeY = charsY*(ctx.getFontY()+seperation)*scale;
-		int startY;
-		if(mode) {
-			startY = y+h-sizeY-yOffset;
-		}else{
-			startY = y+yOffset+1;
-		}		
+		int sizeY = charsY*(ctx.getFontY()+1)*scale;
+		if(mode) {startY = y+h-sizeY-yOffset;}else{startY = y+yOffset+1;}
+		if(startY <= y+h) {startY += scroll;}
 		yOffset += sizeY;
-		if(startY <= (y+h)) {
+		if(startY <= y+h) {
 			if(list[i].writing) {
 				int difference = 0;
 				if(message.length() < maxXSize) {difference = maxXSize - message.length();}
@@ -88,10 +117,13 @@ void MessageList::drawMessages(SDL2_2D_Context ctx, Colour windowColour, bool mo
 				}else{
 					list[i].step++;
 				}	
+			}else{
+				message = list[i].oldContent;
 			}
-			ctx.drawText(message, x, startY, maxXSize, charsY, scale, {255, 255, 255}, windowColour);
-		}else{
-			break;
+
+			Text temp(message, x, startY, maxXSize, charsY, scale, {255, 255, 255}, {50, 50, 50}, ctx);
+			ctx.drawText(temp);
+			temp.destroyTexture();
 		}
 	}
 }

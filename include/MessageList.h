@@ -11,18 +11,20 @@ struct Message {
 	std::string content;
 	int step;
 	bool writing;
+	std::string oldContent;
 };
 
 class MessageList {
 private:
 	std::string writingSign = "//////------\\\\\\\\\\\\||||||";
 	std::vector<Message> list;
-	int x, y, w, h, scale, seperation;
+	int x, y, w, h, scale, seperation, scroll, totYSize;
 public:
 	MessageList(int, int, int, int, int, int);
 	void startWriting(std::string);
 	void stopWriting(std::string);
-	void addMessage(std::string, std::string, std::string);
+	void addMessage(SDL2_2D_Context&, Colour, std::string, std::string, std::string);
 	void removeMessage(std::string);
-	void drawMessages(SDL2_2D_Context, Colour, bool);
+	void drawMessages(SDL2_2D_Context&, bool);
+	void scrollMessages(int, int, int);
 };

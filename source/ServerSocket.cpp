@@ -31,7 +31,7 @@ ServerSocket::ServerSocket(unsigned int port_, unsigned int bufferSize_, unsigne
 				SDLNet_TCP_AddSocket(socketSet, serverSocket);
 			};
 
-void ServerSocket::checkForConnections(std::string pswd, std::string userName, MessageList& userList) {
+void ServerSocket::checkForConnections(SDL2_2D_Context& ctx, Colour background, std::string pswd, std::string userName, MessageList& userList) {
 	int numActiveSockets = SDLNet_CheckSockets(socketSet, 10);
 	int serverSocketActivity = SDLNet_SocketReady(serverSocket);
 	if(serverSocketActivity != 0) {
@@ -74,7 +74,7 @@ void ServerSocket::checkForConnections(std::string pswd, std::string userName, M
 			if(accepted) {
 				SDLNet_TCP_Recv(pClientSocket[freeSpot], pBuffer, 16);
 				clientNames[freeSpot] = pBuffer;
-				userList.addMessage("", "", clientNames[freeSpot]);
+				userList.addMessage(ctx, background, "", "", clientNames[freeSpot]);
 				std::string empty = "";
 
 				for(int i = 0; i < maxClients; i++) {

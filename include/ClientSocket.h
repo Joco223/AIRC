@@ -22,7 +22,7 @@ public:
 
 	ClientSocket(std::string, int, int);
 
-	bool connectToServer(std::string, std::string, MessageList&);
+	bool connectToServer(SDL2_2D_Context&, Colour, std::string, std::string, MessageList&);
 	void sendMessage(std::string);
 	void sendWritingStatus(std::string, std::string);
 	std::string checkForIncomingMessages(std::string&, std::string&, MessageList&, bool&);

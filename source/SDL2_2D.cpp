@@ -69,7 +69,7 @@ void SDL2_2D_Context::drawText(std::string text, int posX, int posY, int endX, i
     int xOffset = 0;
     int yOffset = 0;
     for(int i = 0; i < text.length(); i++) {
-        if((yOffset+1)*(fontY+1)*scale < posY + endY*(fontY+1)*scale) {
+        if((yOffset+1)*(fontY+1)*scale < abs(posY) + endY*(fontY+1)*scale && posY + endY*(fontY+1)*scale > 0) {
             int texPosX = ((unsigned int)text[i] - 32) * fontX;
             SDL_Rect src = {texPosX, 0, fontX, fontY};
             SDL_Rect bck = {0, 0, fontX, fontY};
@@ -95,9 +95,7 @@ void SDL2_2D_Context::drawText(std::string text, int posX, int posY, int endX, i
                 SDL_SetTextureColorMod(font, foreground.red, foreground.green, foreground.blue);
                 SDL_RenderCopyEx(renderer, font, &src, &dst, 0, nullptr, SDL_FLIP_NONE);
             } 
-        }else{
-            break;
-        }            
+        }           
     }
 }
 
@@ -269,6 +267,7 @@ int Text::getSizeX(SDL2_2D_Context ctx) { return endX*(ctx.getFontX()+1)*scale; 
 int Text::getSizeY(SDL2_2D_Context ctx) { return endY*(ctx.getFontY()+1)*scale; }
 int Text::getScale() { return scale; }
 SDL_Texture* Text::getTexture() { return texture; }
+void Text::destroyTexture() {SDL_DestroyTexture(texture);}
 
 //RECT
 

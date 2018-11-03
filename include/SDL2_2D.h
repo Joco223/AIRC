@@ -44,6 +44,7 @@ public:
     int getSizeY(SDL2_2D_Context);
     int getScale();
     SDL_Texture* getTexture();
+    void destroyTexture();
 };
 
 class Rect {

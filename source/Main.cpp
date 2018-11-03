@@ -41,11 +41,11 @@ int main(int argc, char* argv[]) {
     std::string user;
 
     bool connected = false;
-    Networking::NetworkStruct NS = Networking::Init(ctx, userList, user, connected);
+    Networking::NetworkStruct NS = Networking::Init(ctx, windowColour, userList, user, connected);
 
     if(!connected) {return 0;}
 
-    userList.addMessage("", "", user);
+    userList.addMessage(ctx, windowColour, "", "", user);
     bool alreadyUpdated = true;
     
     SDL_StartTextInput();
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
                         if(!NS.host) {Networking::disconnectUser(NS); return 0;}
                     }else if(e.key.keysym.sym == SDLK_KP_ENTER || e.key.keysym.sym == SDLK_RETURN) {
                         if(input.length() > 0) {
-                            Networking::sendMessage(NS, input, user, messageList);
+                            Networking::sendMessage(ctx, windowColour, NS, input, user, messageList);
                             input = "";
                         }   
                     }
@@ -77,10 +77,13 @@ int main(int argc, char* argv[]) {
                         input += e.text.text;
                     }
                     break;
+                case SDL_MOUSEWHEEL:
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    messageList.scrollMessages(x, y, e.wheel.y);
+                    break;
             }
         }
-        ctx.clear();
-
         if(input != "") {
             if(alreadyUpdated) {
                 userList.startWriting(user);
@@ -95,12 +98,15 @@ int main(int argc, char* argv[]) {
             }   
         }
 
-        Networking::update(NS, messageList, userList, user);
+        Networking::update(ctx, windowColour, NS, messageList, userList, user);
 
+        ctx.clear();
+        messageList.drawMessages(ctx, true);
+        ctx.drawRect(w-172, 0, 172, h, windowColour);
+        userList.drawMessages(ctx, false);
         ctx.drawRect(UserDivider, nullptr, 0);
         ctx.drawRect(InputDivider, nullptr, 0);
-        messageList.drawMessages(ctx, windowColour, true);
-        userList.drawMessages(ctx, windowColour, false);
+        ctx.drawRect(0, h-18, w-175, 18, windowColour);
         std::string inputText = input + "_";
         int maxXSize = (w-175) / ((ctx.getFontX()+1) * 2);
         if(inputText.length() > maxXSize) {
@@ -110,7 +116,6 @@ int main(int argc, char* argv[]) {
         }else{
             ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, {255, 255, 255}, windowColour);
         }
-
         ctx.draw();
     }
 
