@@ -51,10 +51,11 @@ int main(int argc, char* argv[]) {
     SDL_StartTextInput();
         
     while (!quit) {
-        while (SDL_WaitEventTimeout(&e, 16)) {
+        while (SDL_PollEvent(&e)) {
             switch (e.type) {
                 case SDL_QUIT:
                     quit = true;
+                    Networking::disconnectUser(NS);
                     break;
                 case SDL_KEYDOWN:
                     if(e.key.keysym.sym == SDLK_BACKSPACE && input.length() > 0) {
@@ -63,8 +64,6 @@ int main(int argc, char* argv[]) {
                         SDL_SetClipboardText(input.c_str());
                     }else if(e.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL) {
                         input += SDL_GetClipboardText();
-                    }else if(e.key.keysym.sym == SDLK_q && SDL_GetModState() & KMOD_CTRL) {
-                        if(!NS.host) {Networking::disconnectUser(NS); return 0;}
                     }else if(e.key.keysym.sym == SDLK_KP_ENTER || e.key.keysym.sym == SDLK_RETURN) {
                         if(input.length() > 0) {
                             Networking::sendMessage(ctx, windowColour, NS, input, user, messageList);
@@ -80,7 +79,7 @@ int main(int argc, char* argv[]) {
                 case SDL_MOUSEWHEEL:
                     int x, y;
                     SDL_GetMouseState(&x, &y);
-                    messageList.scrollMessages(x, y, e.wheel.y);
+                    messageList.scrollMessages(x, y, e.wheel.y*20);
                     break;
             }
         }

@@ -13,13 +13,6 @@ MessageList::MessageList(int x_, int y_, int w_, int h_, int scale_, int seperat
 			{};
 
 void MessageList::addMessage(SDL2_2D_Context& ctx, Colour background, std::string time, std::string sender, std::string content) {
-	/*int maxXSize = floor(w / ((ctx.getFontX()+1) * scale));
-	std::string message = content;
-	if(sender != "") {message = time + "|" + sender + ": " + message;}
-	int charsY = message.length() / maxXSize;
-	if(message.length() % maxXSize != 0) {charsY++;}
-	Text temp(message, 0, 0, maxXSize, charsY, scale, {255, 255, 255}, background, ctx);*/
-
 	int maxXSize = floor(w / ((ctx.getFontX()+1) * scale));
 	std::string message = content;
 	if(sender != "") {message = time + "|" + sender + ": " + message;}
@@ -80,7 +73,7 @@ void MessageList::stopWriting(std::string user) {
 void MessageList::scrollMessages(int mouseX, int mouseY, int scrollAmount) {
 	if(mouseX > x && mouseX < x + w) {
 		if(mouseY > y && mouseY < y + h) {
-			scroll += scrollAmount*20;
+			scroll += scrollAmount;
 			if(scroll < 0) {scroll = 0;}
 			if(scroll > (y+h - totYSize) * -1) {
 				if((y+h - totYSize) * -1 > 0) {

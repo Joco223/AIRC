@@ -32,7 +32,7 @@ ServerSocket::ServerSocket(unsigned int port_, unsigned int bufferSize_, unsigne
 			};
 
 void ServerSocket::checkForConnections(SDL2_2D_Context& ctx, Colour background, std::string pswd, std::string userName, MessageList& userList) {
-	int numActiveSockets = SDLNet_CheckSockets(socketSet, 10);
+	int numActiveSockets = SDLNet_CheckSockets(socketSet, 16);
 	int serverSocketActivity = SDLNet_SocketReady(serverSocket);
 	if(serverSocketActivity != 0) {
 		int freeSpot = -99;
