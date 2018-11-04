@@ -27,4 +27,5 @@ public:
 	void removeMessage(std::string);
 	void drawMessages(SDL2_2D_Context&, bool, Colour, Colour);
 	void scrollMessages(int, int, int);
+	int getTotYSize();
 };

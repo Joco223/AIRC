@@ -28,6 +28,8 @@ void MessageList::removeMessage(std::string targetContent) {
 	if(id != -1) {list.erase(list.begin()+id);}
 }
 
+int MessageList::getTotYSize() {return totYSize;}
+
 void MessageList::startWriting(std::string user) {
 	int id = -1;
 	for(int i = 0; i < list.size(); i++) {
@@ -45,9 +47,7 @@ void MessageList::startWriting(std::string user) {
 			break;
 		}
 	}
-	if(id != -1) {list[id].writing = true; 
-		list[id].oldContent = list[id].content;
-	}
+	if(id != -1) {list[id].writing = true; list[id].oldContent = list[id].content;}
 }
 
 void MessageList::stopWriting(std::string user) {

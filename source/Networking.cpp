@@ -62,7 +62,7 @@ namespace Networking {
 		return NS;
 	}
 
-	void sendMessage(SDL2_2D_Context& ctx, NetworkStruct& NS, std::string input, std::string user, MessageList& messageList) {
+	void sendMessage(SDL2_2D_Context& ctx, NetworkStruct& NS, std::string input, std::string user, MessageList& messageList, bool& needsUpdating) {
 		if(NS.host) {
 			NS.ss->sendMessages(user, input);
 		}else{
@@ -70,6 +70,7 @@ namespace Networking {
 		}
 
 		messageList.addMessage(ctx, getTime(), user, input);
+		needsUpdating = true;
 	}
 
 	void updateStatus(NetworkStruct& NS, std::string input, std::string user) {
@@ -80,7 +81,7 @@ namespace Networking {
 		}
 	}
 
-	void update(SDL2_2D_Context& ctx, NetworkStruct& NS, MessageList& messageList, MessageList& userList, std::string user) {
+	void update(SDL2_2D_Context& ctx, NetworkStruct& NS, MessageList& messageList, MessageList& userList, std::string user, bool& needsUpdating) {
 		if(NS.host) {
 			NS.ss->checkForConnections(ctx, NS.pswd, user, userList);
 			std::string userName;
@@ -93,6 +94,7 @@ namespace Networking {
 					NS.ss->dealWithActivity(activeClient, userName, messageContnet);
 					if(messageContnet != "") {
 						messageList.addMessage(ctx, getTime(), userName, messageContnet);
+						needsUpdating = true;
 					}
 				}
 				activeClient = NS.ss->checkForActivity(messageContnet, userList);
@@ -104,8 +106,10 @@ namespace Networking {
 			NS.cs->checkForIncomingMessages(userName, messageContnet, userList, received);
 			if(messageContnet != "") {
 				messageList.addMessage(ctx, getTime(), userName, messageContnet);
+				needsUpdating = true;
 			}else if(received){
 				userList.addMessage(ctx, "", "", userName);
+				needsUpdating = true;
 			}
 		}
 	}
