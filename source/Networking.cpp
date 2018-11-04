@@ -14,7 +14,9 @@ namespace Networking {
 	}
 
 	void disconnectUser(NetworkStruct& NS) {
-		NS.cs->disconnectFromServer();
+		if(!NS.host) {
+			NS.cs->disconnectFromServer();
+		}
 	}
 
 	NetworkStruct Init(SDL2_2D_Context& ctx, MessageList& userList, std::string& user, bool& connected) {

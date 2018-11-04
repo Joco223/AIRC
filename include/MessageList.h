@@ -16,7 +16,7 @@ struct Message {
 
 class MessageList {
 private:
-	std::string writingSign = "//////------\\\\\\\\\\\\||||||";
+	std::string writingSign = "/////////---------\\\\\\\\\\\\\\\\\\|||||||||";
 	std::vector<Message> list;
 	int x, y, w, h, scale, seperation, scroll, totYSize;
 public:

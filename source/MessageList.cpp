@@ -105,7 +105,7 @@ void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode, Colour foregroun
 				if(message.length() < maxXSize) {difference = maxXSize - message.length();}
 				for(int j = 0; j < difference; j++) {message.append(".");}
 				message[message.length() - 1] = writingSign[list[i].step];
-				if(list[i].step > 23) {
+				if(list[i].step > 35) {
 					list[i].step = 0;
 				}else{
 					list[i].step++;
