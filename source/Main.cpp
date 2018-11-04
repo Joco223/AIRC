@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
 
 	bool needsUpdating = true;
 	bool inputNeedsUpdating = true;
+	bool firstTime = true;
 		
 	while (!quit) {
 		while (SDL_PollEvent(&e)) {
@@ -111,7 +112,7 @@ int main(int argc, char* argv[]) {
 
 		Networking::update(ctx, NS, messageList, userList, user, needsUpdating);
 
-		if(needsUpdating) {
+		if(needsUpdating || firstTime) {
 			ctx.clear();
 			messageList.drawMessages(ctx, true, fontColour, windowColour);
 			ctx.drawRect(w-172, 0, 172, h, windowColour);
@@ -129,6 +130,7 @@ int main(int argc, char* argv[]) {
 				ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, fontColour, windowColour);
 			}
 			ctx.draw();
+			if(!needsUpdating) {firstTime = false;}
 			needsUpdating = false;
 		}
 
