@@ -18,7 +18,7 @@ void MessageList::addMessage(SDL2_2D_Context& ctx, Colour background, std::strin
 	if(sender != "") {message = time + "|" + sender + ": " + message;}
 	int charsY = message.length() / maxXSize + 1;
 	totYSize += charsY*(ctx.getFontY()+1)*scale;
-	Message newMessage = {time, sender, message, 0, false, message};
+	Message newMessage = {time, sender, content, 0, false, message};
 	list.insert(list.begin(), newMessage);
 }
 
