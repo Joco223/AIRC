@@ -55,6 +55,9 @@ int main(int argc, char* argv[]) {
 	bool needsUpdating = true;
 	bool inputNeedsUpdating = true;
 	bool firstTime = true;
+
+	int mX, mY, scroll;
+	bool scrolled = true;
 		
 	while (!quit) {
 		while (SDL_PollEvent(&e)) {
@@ -88,7 +91,10 @@ int main(int argc, char* argv[]) {
 				case SDL_MOUSEWHEEL:
 					int x, y;
 					SDL_GetMouseState(&x, &y);
-					messageList.scrollMessages(x, y, e.wheel.y*20);
+					mX = x;
+					mY = y;
+					scroll = e.wheel.y*12;
+					messageList.scrollMessages(x, y, e.wheel.y*6);
 					needsUpdating = true;
 					break;
 			}
@@ -108,6 +114,18 @@ int main(int argc, char* argv[]) {
 				alreadyUpdated = true;
 				needsUpdating = true;
 			}   
+		}
+
+		if(scroll != 0) {
+			messageList.scrollMessages(mX, mY, scroll/2);
+			scroll /= 2;
+			if(!scrolled) {
+				messageList.scrollMessages(mX, mY, scroll);
+				scrolled = 0;
+				scrolled = true;
+			}
+			needsUpdating = true;
+			scrolled = false;
 		}
 
 		Networking::update(ctx, NS, messageList, userList, user, needsUpdating);
