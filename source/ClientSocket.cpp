@@ -9,7 +9,7 @@ ClientSocket::ClientSocket(std::string address, int port_, int bufferSize_) {
 	socketSet = SDLNet_AllocSocketSet(2);
 }
 
-bool ClientSocket::connectToServer(SDL2_2D_Context& ctx, Colour background, std::string pswd, std::string name, MessageList& userList) {
+bool ClientSocket::connectToServer(SDL2_2D_Context& ctx, std::string pswd, std::string name, MessageList& userList) {
 	SDLNet_ResolveHost(&serverIP, serverHostName.c_str(), serverPort);
 
 	clientSocket = SDLNet_TCP_Open(&serverIP);
@@ -38,7 +38,7 @@ bool ClientSocket::connectToServer(SDL2_2D_Context& ctx, Colour background, std:
 			SDLNet_TCP_Recv(clientSocket, pBuffer, 16);
 			std::string message = pBuffer;
 			if(message != "END") {
-				userList.addMessage(ctx, background, "", "", message);
+				userList.addMessage(ctx, "", "", message);
 			}else{
 				break;
 			}

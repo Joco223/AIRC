@@ -17,7 +17,7 @@ namespace Networking {
 		NS.cs->disconnectFromServer();
 	}
 
-	NetworkStruct Init(SDL2_2D_Context& ctx, Colour background, MessageList& userList, std::string& user, bool& connected) {
+	NetworkStruct Init(SDL2_2D_Context& ctx, MessageList& userList, std::string& user, bool& connected) {
 		std::ifstream inputF("config.cfg");
 
 		int index = 0;
@@ -55,21 +55,21 @@ namespace Networking {
 			connected = true;
 		}else{
 			NS.cs = new ClientSocket(ipAddress, 12000, 512);
-			connected = NS.cs->connectToServer(ctx, background, password, user, userList);
+			connected = NS.cs->connectToServer(ctx, password, user, userList);
 			ctx.setWindowTitle("AIRC - " + ipAddress);
 		}
 
 		return NS;
 	}
 
-	void sendMessage(SDL2_2D_Context& ctx, Colour background, NetworkStruct& NS, std::string input, std::string user, MessageList& messageList) {
+	void sendMessage(SDL2_2D_Context& ctx, NetworkStruct& NS, std::string input, std::string user, MessageList& messageList) {
 		if(NS.host) {
 			NS.ss->sendMessages(user, input);
 		}else{
 			NS.cs->sendMessage(input);
 		}
 
-		messageList.addMessage(ctx, background, getTime(), user, input);
+		messageList.addMessage(ctx, getTime(), user, input);
 	}
 
 	void updateStatus(NetworkStruct& NS, std::string input, std::string user) {
@@ -80,9 +80,9 @@ namespace Networking {
 		}
 	}
 
-	void update(SDL2_2D_Context& ctx, Colour background, NetworkStruct& NS, MessageList& messageList, MessageList& userList, std::string user) {
+	void update(SDL2_2D_Context& ctx, NetworkStruct& NS, MessageList& messageList, MessageList& userList, std::string user) {
 		if(NS.host) {
-			NS.ss->checkForConnections(ctx, background, NS.pswd, user, userList);
+			NS.ss->checkForConnections(ctx, NS.pswd, user, userList);
 			std::string userName;
 			std::string messageContnet;
 
@@ -92,7 +92,7 @@ namespace Networking {
 				if(activeClient != -1) {
 					NS.ss->dealWithActivity(activeClient, userName, messageContnet);
 					if(messageContnet != "") {
-						messageList.addMessage(ctx, background, getTime(), userName, messageContnet);
+						messageList.addMessage(ctx, getTime(), userName, messageContnet);
 					}
 				}
 				activeClient = NS.ss->checkForActivity(messageContnet, userList);
@@ -103,9 +103,9 @@ namespace Networking {
 			bool received = false;
 			NS.cs->checkForIncomingMessages(userName, messageContnet, userList, received);
 			if(messageContnet != "") {
-				messageList.addMessage(ctx, background, getTime(), userName, messageContnet);
+				messageList.addMessage(ctx, getTime(), userName, messageContnet);
 			}else if(received){
-				userList.addMessage(ctx, background, "", "", userName);
+				userList.addMessage(ctx, "", "", userName);
 			}
 		}
 	}

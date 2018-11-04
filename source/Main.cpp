@@ -20,6 +20,8 @@ bool quit = false;
 int main(int argc, char* argv[]) {
 
 	Colour windowColour = {50, 50, 50};
+    Colour fontColour = {255, 255, 255};
+    Colour GUIColour = {255, 255, 255};
 
     SDL2_2D_Context ctx;
 
@@ -29,8 +31,8 @@ int main(int argc, char* argv[]) {
 
     SDL_Event e;
 
-    Rect UserDivider(w-175, 0, 3, h, {255, 255, 255});
-    Rect InputDivider(0, h-20, w-175, 2, {255, 255, 255});
+    Rect UserDivider(w-175, 0, 3, h, GUIColour);
+    Rect InputDivider(0, h-20, w-175, 2, GUIColour);
 
     ctx.loadFont("Font.bmp", 5, 7);
 
@@ -41,11 +43,11 @@ int main(int argc, char* argv[]) {
     std::string user;
 
     bool connected = false;
-    Networking::NetworkStruct NS = Networking::Init(ctx, windowColour, userList, user, connected);
+    Networking::NetworkStruct NS = Networking::Init(ctx, userList, user, connected);
 
     if(!connected) {return 0;}
 
-    userList.addMessage(ctx, windowColour, "", "", user);
+    userList.addMessage(ctx, "", "", user);
     bool alreadyUpdated = true;
     
     SDL_StartTextInput();
@@ -66,7 +68,7 @@ int main(int argc, char* argv[]) {
                         input += SDL_GetClipboardText();
                     }else if(e.key.keysym.sym == SDLK_KP_ENTER || e.key.keysym.sym == SDLK_RETURN) {
                         if(input.length() > 0) {
-                            Networking::sendMessage(ctx, windowColour, NS, input, user, messageList);
+                            Networking::sendMessage(ctx, NS, input, user, messageList);
                             input = "";
                         }   
                     }
@@ -97,12 +99,12 @@ int main(int argc, char* argv[]) {
             }   
         }
 
-        Networking::update(ctx, windowColour, NS, messageList, userList, user);
+        Networking::update(ctx, NS, messageList, userList, user);
 
         ctx.clear();
-        messageList.drawMessages(ctx, true);
+        messageList.drawMessages(ctx, true, fontColour, windowColour);
         ctx.drawRect(w-172, 0, 172, h, windowColour);
-        userList.drawMessages(ctx, false);
+        userList.drawMessages(ctx, false, fontColour, windowColour);
         ctx.drawRect(UserDivider, nullptr, 0);
         ctx.drawRect(InputDivider, nullptr, 0);
         ctx.drawRect(0, h-18, w-175, 18, windowColour);
@@ -111,9 +113,9 @@ int main(int argc, char* argv[]) {
         if(inputText.length() > maxXSize) {
             int difference = inputText.length() - maxXSize;
             inputText.erase(0, difference);
-            ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, {255, 255, 255}, windowColour);
+            ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, fontColour, windowColour);
         }else{
-            ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, {255, 255, 255}, windowColour);
+            ctx.drawText(inputText, 0, h-16, maxXSize, 1, 2, fontColour, windowColour);
         }
         ctx.draw();
     }

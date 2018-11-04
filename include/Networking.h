@@ -19,9 +19,9 @@ namespace Networking {
 
 	std::string getTime();
 
-	NetworkStruct Init(SDL2_2D_Context&, Colour, MessageList&, std::string&, bool&);
-	void sendMessage(SDL2_2D_Context&, Colour, NetworkStruct&, std::string, std::string, MessageList&);
-	void update(SDL2_2D_Context&, Colour, NetworkStruct&, MessageList&, MessageList&, std::string);
+	NetworkStruct Init(SDL2_2D_Context&, MessageList&, std::string&, bool&);
+	void sendMessage(SDL2_2D_Context&, NetworkStruct&, std::string, std::string, MessageList&);
+	void update(SDL2_2D_Context&, NetworkStruct&, MessageList&, MessageList&, std::string);
 	void updateStatus(NetworkStruct&, std::string, std::string);
 	void disconnectUser(NetworkStruct&);
 }

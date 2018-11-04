@@ -12,7 +12,7 @@ MessageList::MessageList(int x_, int y_, int w_, int h_, int scale_, int seperat
 			seperation(seperation_)
 			{};
 
-void MessageList::addMessage(SDL2_2D_Context& ctx, Colour background, std::string time, std::string sender, std::string content) {
+void MessageList::addMessage(SDL2_2D_Context& ctx, std::string time, std::string sender, std::string content) {
 	int maxXSize = floor(w / ((ctx.getFontX()+1) * scale));
 	std::string message = content;
 	if(sender != "") {message = time + "|" + sender + ": " + message;}
@@ -86,7 +86,7 @@ void MessageList::scrollMessages(int mouseX, int mouseY, int scrollAmount) {
 	}
 }
 
-void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode) {
+void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode, Colour foreground, Colour background) {
 	int maxXSize = floor(w / ((ctx.getFontX()+1) * scale));
 	int yOffset = 0;
 	for(int i = 0; i < list.size(); i++) {
@@ -114,7 +114,7 @@ void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode) {
 				message = list[i].oldContent;
 			}
 
-			Text temp(message, x, startY, maxXSize, charsY, scale, {255, 255, 255}, {50, 50, 50}, ctx);
+			Text temp(message, x, startY, maxXSize, charsY, scale, foreground, background, ctx);
 			ctx.drawText(temp);
 			temp.destroyTexture();
 		}

@@ -23,8 +23,8 @@ public:
 	MessageList(int, int, int, int, int, int);
 	void startWriting(std::string);
 	void stopWriting(std::string);
-	void addMessage(SDL2_2D_Context&, Colour, std::string, std::string, std::string);
+	void addMessage(SDL2_2D_Context&, std::string, std::string, std::string);
 	void removeMessage(std::string);
-	void drawMessages(SDL2_2D_Context&, bool);
+	void drawMessages(SDL2_2D_Context&, bool, Colour, Colour);
 	void scrollMessages(int, int, int);
 };
