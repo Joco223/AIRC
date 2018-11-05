@@ -42,12 +42,14 @@ void MessageList::addMessage(SDL2_2D_Context& ctx, std::string time, std::string
 				newMessage = newMessage + message.substr(links[i].end+3, links[i+1].start-links[i].end-5);
 			}
 		}
+	}else{
+		newMessage = message;
 	}
 
 	int charsY = newMessage.length() / maxXSize + 1;
 	totYSize += charsY*(ctx.getFontY()+1)*scale;
 
-	Message newMessage2 = {time, sender, content.substr(additionalSize), 0, false, newMessage, links};
+	Message newMessage2 = {time, sender, message.substr(additionalSize), 0, false, newMessage, links};
 	list.insert(list.begin(), newMessage2);
 }
 
