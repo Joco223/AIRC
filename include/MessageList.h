@@ -2,8 +2,16 @@
 #include <string>
 #include <vector>
 #include <math.h>
+#include <stdlib.h>
+#include <vector>
 
 #include "SDL2_2D.h"
+
+struct link {
+	int start;
+	int end;
+	std::string url;
+};
 
 struct Message {
 	std::string time;
@@ -12,6 +20,7 @@ struct Message {
 	int step;
 	bool writing;
 	std::string oldContent;
+	std::vector<link> links;
 };
 
 class MessageList {

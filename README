@@ -1,0 +1,5 @@
+v How to use
+Open the config, change the username and set the mode to host and then whoever wants to connect, they set the mode to client and put the hosts IP in the config
+
+v Features
+1.Links, put them around << and >>, f.e. <<www.google.com>>, in the message they will appear like www.google.com but in blue

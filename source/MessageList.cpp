@@ -18,8 +18,35 @@ void MessageList::addMessage(SDL2_2D_Context& ctx, std::string time, std::string
 	if(sender != "") {message = time + "|" + sender + ": " + message;}
 	int charsY = message.length() / maxXSize + 1;
 	totYSize += charsY*(ctx.getFontY()+1)*scale;
-	Message newMessage = {time, sender, content, 0, false, message};
-	list.insert(list.begin(), newMessage);
+
+	std::vector<link> links;
+
+	int start = message.find("<<");
+	int offset = 0;
+	while(start != std::string::npos) {
+		int end = message.find(">>", offset);
+		if(end == -1) {break;};
+		links.push_back({start+2, end-1, message.substr(start+2, end-start-2)});
+		offset = end+3;
+		start = message.find("<<", offset);
+	}
+
+	std::string newMessage = "";
+
+	if(links.size() > 0) {
+		newMessage = message.substr(0, links[0].start-2);
+		for(int i = 0; i < links.size(); i++) {
+			newMessage = newMessage + links[i].url;
+			if(i == links.size()-1) {
+				newMessage = newMessage + message.substr(links[i].end+3);		
+			}else{
+				newMessage = newMessage + message.substr(links[i].end+3, links[i+1].start-links[i].end-5);
+			}
+		}
+	}
+
+	Message newMessage2 = {time, sender, content, 0, false, newMessage, links};
+	list.insert(list.begin(), newMessage2);
 }
 
 void MessageList::removeMessage(std::string targetContent) {
@@ -115,6 +142,13 @@ void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode, Colour foregroun
 			}
 
 			Text temp(message, x, startY, maxXSize, charsY, scale, foreground, background, ctx);
+			int k = 0;
+			int offset = 0;
+			for(auto& j : list[i].links) {
+				temp.addSpecialText({j.start-(2*(k+1))-offset, j.end-(2*(k+1))-offset, {80, 80, 255}}, ctx);
+				offset += 2;
+				k++;
+			}
 			ctx.drawText(temp);
 			temp.destroyTexture();
 		}

@@ -153,7 +153,7 @@ Colour SDL2_2D_Context::getColour() { return colour; }
 
 //TEXT
 
-Text::Text(std::string text_, int posX_, int posY_, int scale_, Colour foreground_, Colour background_, SDL2_2D_Context ctx)
+Text::Text(std::string text_, int posX_, int posY_, int scale_, Colour foreground_, Colour background_, SDL2_2D_Context& ctx)
 	 :
 	 text(text_),
 	 posX(posX_),
@@ -167,7 +167,7 @@ Text::Text(std::string text_, int posX_, int posY_, int scale_, Colour foregroun
 		updateTexture(ctx);
 	 };
 
-Text::Text(std::string text_, int posX_, int posY_, int endX_, int endY_, int scale_, Colour foreground_, Colour background_, SDL2_2D_Context ctx)
+Text::Text(std::string text_, int posX_, int posY_, int endX_, int endY_, int scale_, Colour foreground_, Colour background_, SDL2_2D_Context& ctx)
 	 :
 	 text(text_),
 	 posX(posX_),
@@ -183,7 +183,7 @@ Text::Text(std::string text_, int posX_, int posY_, int endX_, int endY_, int sc
 
 std::string Text::getText() { return text; }
 
-void Text::updateTexture(SDL2_2D_Context ctx) {
+void Text::updateTexture(SDL2_2D_Context& ctx) {
 	texture = SDL_CreateTexture(ctx.getRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, endX*(ctx.getFontX()+1)*scale, endY*(ctx.getFontY()+1)*scale);
 
 	SDL_SetRenderTarget(ctx.getRenderer(), texture);
@@ -216,7 +216,15 @@ void Text::updateTexture(SDL2_2D_Context ctx) {
 			SDL_SetTextureColorMod(ctx.getFont(), background.red, background.green, background.blue);
 			SDL_RenderCopyEx(ctx.getRenderer(), ctx.getFont(), &bck, &ds2, 0, nullptr, SDL_FLIP_NONE);
 			if(texPosX != 0) {
-				SDL_SetTextureColorMod(ctx.getFont(), foreground.red, foreground.green, foreground.blue);
+				int id = -1;
+				for(int j = 0; j < sps.size(); j++) {
+					if(i >= sps[j].start && i <= sps[j].end) {id = j; break;}
+				}
+				if(id != -1) {
+					SDL_SetTextureColorMod(ctx.getFont(), sps[id].c.red, sps[id].c.green, sps[id].c.blue);	
+				}else{
+					SDL_SetTextureColorMod(ctx.getFont(), foreground.red, foreground.green, foreground.blue);
+				}	
 				SDL_RenderCopyEx(ctx.getRenderer(), ctx.getFont(), &src, &dst, 0, nullptr, SDL_FLIP_NONE);
 			} 
 		}else{
@@ -227,34 +235,39 @@ void Text::updateTexture(SDL2_2D_Context ctx) {
 	SDL_SetRenderTarget(ctx.getRenderer(), nullptr);
 }
 
-void Text::setText(std::string text_, SDL2_2D_Context ctx) {
+void Text::addSpecialText(specialText sp, SDL2_2D_Context& ctx) {
+	sps.push_back(sp);
+	updateTexture(ctx);
+}
+
+void Text::setText(std::string text_, SDL2_2D_Context& ctx) {
 	text = text_;
 	updateTexture(ctx);
 }
 
-void Text::setTextPos(int posX_, int posY_, SDL2_2D_Context ctx) {
+void Text::setTextPos(int posX_, int posY_, SDL2_2D_Context& ctx) {
 	posX = posX_;
 	posY = posY_;
 	updateTexture(ctx);
 }
 
-void Text::setTextSize(int endX_, int endY_, SDL2_2D_Context ctx) {
+void Text::setTextSize(int endX_, int endY_, SDL2_2D_Context& ctx) {
 	endX = endX_;
 	endY = endY_;
 	updateTexture(ctx);
 }
 
-void Text::setScale(int scale_, SDL2_2D_Context ctx) {
+void Text::setScale(int scale_, SDL2_2D_Context& ctx) {
 	scale = scale_;
 	updateTexture(ctx);
 }
 
-void Text::setBackground(Colour background_, SDL2_2D_Context ctx) {
+void Text::setBackground(Colour background_, SDL2_2D_Context& ctx) {
 	background = background_;
 	updateTexture(ctx);
 }
 
-void Text::setForeground(Colour foreground_, SDL2_2D_Context ctx) {
+void Text::setForeground(Colour foreground_, SDL2_2D_Context& ctx) {
 	foreground = foreground_;
 	updateTexture(ctx);
 }
@@ -263,8 +276,8 @@ int Text::getPosX() { return posX; }
 int Text::getPosY() { return posY; }
 int Text::getEndX() { return endX; }
 int Text::getEndY() { return endY; }
-int Text::getSizeX(SDL2_2D_Context ctx) { return endX*(ctx.getFontX()+1)*scale; }
-int Text::getSizeY(SDL2_2D_Context ctx) { return endY*(ctx.getFontY()+1)*scale; }
+int Text::getSizeX(SDL2_2D_Context& ctx) { return endX*(ctx.getFontX()+1)*scale; }
+int Text::getSizeY(SDL2_2D_Context& ctx) { return endY*(ctx.getFontY()+1)*scale; }
 int Text::getScale() { return scale; }
 SDL_Texture* Text::getTexture() { return texture; }
 void Text::destroyTexture() {SDL_DestroyTexture(texture);}

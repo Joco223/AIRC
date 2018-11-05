@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <string>
 #include <iostream>
+#include <vector>
 
 class Rect;
 class Line;
@@ -18,6 +19,14 @@ struct Colour{
 class Text {
 private:
 	friend class SDL2_2D_Context;
+
+	struct specialText {
+		int start;
+		int end;
+		Colour c;
+	};
+
+	std::vector<specialText> sps;
 	int posX, posY;
 	int endX, endY;
 	int scale;
@@ -25,23 +34,24 @@ private:
 	Colour background, foreground;
 	SDL_Texture* texture;
 
-	void updateTexture(SDL2_2D_Context);
+	void updateTexture(SDL2_2D_Context&);
 public:
-	Text(std::string, int, int, int, Colour, Colour, SDL2_2D_Context);
-	Text(std::string, int, int, int, int, int, Colour, Colour, SDL2_2D_Context);
+	Text(std::string, int, int, int, Colour, Colour, SDL2_2D_Context&);
+	Text(std::string, int, int, int, int, int, Colour, Colour, SDL2_2D_Context&);
 	std::string getText();
-	void setText(std::string, SDL2_2D_Context);
-	void setTextPos(int, int, SDL2_2D_Context);
-	void setTextSize(int, int, SDL2_2D_Context);
-	void setScale(int, SDL2_2D_Context);
-	void setForeground(Colour, SDL2_2D_Context);
-	void setBackground(Colour, SDL2_2D_Context);
+	void setText(std::string, SDL2_2D_Context&);
+	void setTextPos(int, int, SDL2_2D_Context&);
+	void setTextSize(int, int, SDL2_2D_Context&);
+	void setScale(int, SDL2_2D_Context&);
+	void setForeground(Colour, SDL2_2D_Context&);
+	void setBackground(Colour, SDL2_2D_Context&);
+	void addSpecialText(specialText, SDL2_2D_Context&);
 	int getPosX();
 	int getPosY();
 	int getEndX();
 	int getEndY();
-	int getSizeX(SDL2_2D_Context);
-	int getSizeY(SDL2_2D_Context);
+	int getSizeX(SDL2_2D_Context&);
+	int getSizeY(SDL2_2D_Context&);
 	int getScale();
 	SDL_Texture* getTexture();
 	void destroyTexture();

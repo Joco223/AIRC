@@ -13,6 +13,7 @@
 #include "ClientSocket.h"
 #include "Networking.h"
 
+
 constexpr int w = 960, h = 540;
 constexpr int scale = 2;
 bool quit = false;
