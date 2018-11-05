@@ -15,10 +15,9 @@ MessageList::MessageList(int x_, int y_, int w_, int h_, int scale_, int seperat
 void MessageList::addMessage(SDL2_2D_Context& ctx, std::string time, std::string sender, std::string content) {
 	int maxXSize = floor(w / ((ctx.getFontX()+1) * scale));
 	std::string message = content;
-	if(sender != "") {message = time + "|" + sender + ": " + message;}
-	int charsY = message.length() / maxXSize + 1;
-	totYSize += charsY*(ctx.getFontY()+1)*scale;
-
+	int additionalSize = 0;
+	if(sender != "") {message = time + "|" + sender + ": " + message; additionalSize = time.length() + 3 + sender.length();}
+	
 	std::vector<link> links;
 
 	int start = message.find("<<");
@@ -45,7 +44,10 @@ void MessageList::addMessage(SDL2_2D_Context& ctx, std::string time, std::string
 		}
 	}
 
-	Message newMessage2 = {time, sender, content, 0, false, newMessage, links};
+	int charsY = newMessage.length() / maxXSize + 1;
+	totYSize += charsY*(ctx.getFontY()+1)*scale;
+
+	Message newMessage2 = {time, sender, content.substr(additionalSize), 0, false, newMessage, links};
 	list.insert(list.begin(), newMessage2);
 }
 
