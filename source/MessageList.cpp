@@ -173,13 +173,21 @@ void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode, Colour foregroun
 
 			if(list[i].links.size() > 0 && !list[i].linksAdded) {		
 				for(int j = 0; j < list[i].links.size(); j++){
-					if(list[i].links[i].newEnd <= list[i].charX) {
-						clickableLink newLink1 = {list[i].links[i].newStart*(ctx.getFontX()+1)*scale, list[i].posY, (list[i].links[i].newEnd-list[i].links[i].newStart)*(ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale, i, j};
+					std::cout << list[i].links[j].newEnd << " " << list[i].charX << '\n';
+					int linkYOffset = list[i].links[j].newStart / list[i].charX;
+					int newStartPos = list[i].links[j].newStart;
+					int newEndPos = list[i].links[j].newEnd;
+					if(linkYOffset > 0) {
+						newStartPos -= list[i].charX;
+						newEndPos -= list[i].charX;
+					}
+					if(list[i].links[j].newEnd <= list[i].charX) {
+						clickableLink newLink1 = {newStartPos*(ctx.getFontX()+1)*scale, list[i].posY+(linkYOffset*(ctx.getFontY()+1)*scale), (newEndPos-newStartPos)*(ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale, i, j};
 						clickLinks.insert(clickLinks.begin(), newLink1);
 					}else{
-						clickableLink newLink1 = {list[i].links[i].newStart*(ctx.getFontX()+1)*scale, list[i].posY, (list[i].charX-list[i].links[i].newStart)*(ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale, i, j};
+						clickableLink newLink1 = {newStartPos*(ctx.getFontX()+1)*scale, list[i].posY+(linkYOffset*(ctx.getFontY()+1)*scale), (list[i].charX-newStartPos)*(ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale, i, j};
 						clickLinks.insert(clickLinks.begin(), newLink1);
-						clickableLink newLink2 = {x, list[i].posY+((ctx.getFontY()+1)*scale), (list[i].links[i].newEnd-list[i].charX)*(ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale, i, j};
+						clickableLink newLink2 = {x, list[i].posY+((linkYOffset+1)*(ctx.getFontY()+1)*scale), (newEndPos-list[j].charX)*(ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale, i, j};
 						clickLinks.insert(clickLinks.begin(), newLink2);
 					}	
 				}
@@ -191,9 +199,11 @@ void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode, Colour foregroun
 
 void MessageList::checkClicks(int clickX, int clickY) {
 	for(int i = 0; i < clickLinks.size(); i++)  {
+		//std::cout << clickLinks[i].x << " " << clickLinks[i].y << " " << clickX << " " << clickY << '\n';
 		if(clickX >= clickLinks[i].x+scroll && clickX <= clickLinks[i].x+clickLinks[i].xSize+scroll) {
 			if(clickY >= clickLinks[i].y+scroll && clickY <= clickLinks[i].y+clickLinks[i].ySize+scroll) {
 				std::string URL = "start " + list[clickLinks[i].msgIndex].links[clickLinks[i].index].url;
+				std::cout << URL << '\n';
 				std::system(URL.c_str());
 				break;
 			}
