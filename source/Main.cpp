@@ -98,6 +98,9 @@ int main(int argc, char* argv[]) {
 					messageList.scrollMessages(x, y, e.wheel.y*6);
 					needsUpdating = true;
 					break;
+				case SDL_MOUSEBUTTONDOWN:
+					messageList.checkClicks(e.button.x, e.button.y);
+					break;
 			}
 		}
 		if(input != "") {

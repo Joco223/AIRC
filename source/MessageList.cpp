@@ -49,8 +49,20 @@ void MessageList::addMessage(SDL2_2D_Context& ctx, std::string time, std::string
 	int charsY = newMessage.length() / maxXSize + 1;
 	totYSize += charsY*(ctx.getFontY()+1)*scale;
 
-	Message newMessage2 = {time, sender, message.substr(additionalSize), 0, false, newMessage, links};
+	int messageCharX;
+	if(charsY == 1) {
+		messageCharX = newMessage.length();
+	}else{
+		messageCharX = maxXSize;
+	};
+
+	Message newMessage2 = {time, sender, message.substr(additionalSize), 0, false, newMessage, links, 0, messageCharX, charsY, false};
 	list.insert(list.begin(), newMessage2);
+
+	for(int i = 0; i < clickLinks.size(); i++) {
+		clickLinks[i].y -= charsY*(ctx.getFontY()+1)*scale;
+		clickLinks[i].msgIndex++;
+	}
 }
 
 void MessageList::removeMessage(std::string targetContent) {
@@ -129,6 +141,7 @@ void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode, Colour foregroun
 		int sizeY = charsY*(ctx.getFontY()+1)*scale;
 		if(mode) {startY = y+h-sizeY-yOffset;}else{startY = y+yOffset+1;}
 		if(startY <= y+h) {startY += scroll;}
+		list[i].posY = startY;
 		yOffset += sizeY;
 		if(startY <= y+h) {
 			if(list[i].writing) {
@@ -150,11 +163,41 @@ void MessageList::drawMessages(SDL2_2D_Context& ctx, bool mode, Colour foregroun
 			int offset = 0;
 			for(auto& j : list[i].links) {
 				temp.addSpecialText({j.start-(2*(k+1))-offset, j.end-(2*(k+1))-offset, {80, 80, 255}}, ctx);
+				j.newStart = j.start-(2*(k+1))-offset;
+				j.newEnd = j.end-(2*(k+1))-offset;
 				offset += 2;
 				k++;
 			}
 			ctx.drawText(temp);
 			temp.destroyTexture();
+
+			if(list[i].links.size() > 0 && !list[i].linksAdded) {		
+				for(int j = 0; j < list[i].links.size(); j++){
+					if(list[i].links[i].newEnd <= list[i].charX) {
+						clickableLink newLink1 = {list[i].links[i].newStart*(ctx.getFontX()+1)*scale, list[i].posY, (list[i].links[i].newEnd-list[i].links[i].newStart)*(ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale, i, j};
+						clickLinks.insert(clickLinks.begin(), newLink1);
+					}else{
+						clickableLink newLink1 = {list[i].links[i].newStart*(ctx.getFontX()+1)*scale, list[i].posY, (list[i].charX-list[i].links[i].newStart)*(ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale, i, j};
+						clickLinks.insert(clickLinks.begin(), newLink1);
+						clickableLink newLink2 = {x, list[i].posY+((ctx.getFontY()+1)*scale), (list[i].links[i].newEnd-list[i].charX)*(ctx.getFontX()+1)*scale, (ctx.getFontY()+1)*scale, i, j};
+						clickLinks.insert(clickLinks.begin(), newLink2);
+					}	
+				}
+				list[i].linksAdded = true;
+			}
 		}
+	}
+}
+
+void MessageList::checkClicks(int clickX, int clickY) {
+	for(int i = 0; i < clickLinks.size(); i++)  {
+		if(clickX >= clickLinks[i].x+scroll && clickX <= clickLinks[i].x+clickLinks[i].xSize+scroll) {
+			if(clickY >= clickLinks[i].y+scroll && clickY <= clickLinks[i].y+clickLinks[i].ySize+scroll) {
+				std::string URL = "start " + list[clickLinks[i].msgIndex].links[clickLinks[i].index].url;
+				std::system(URL.c_str());
+				break;
+			}
+		}
+		
 	}
 }
